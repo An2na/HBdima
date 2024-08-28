@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@latest/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle, #27a9da, #1e6e8e);
+            color: #333;
+            overflow: hidden;
+        }
+        .top-bar {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease-in-out;
+        }
+        .top-bar:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        .top-bar a {
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+        }
+        .top-bar a:hover {
+            background-color: #51c8f8;
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .top-bar a.active {
+            background-color: #1e6e8e;
+            color: #fff;
+        }
+        .hero-image {
+            position: relative;
+            text-align: center;
+            color: white;
+            height: 100vh;
+            background-image: url("static-fiels/img/blue-birthday-background-1920-x-1221-s4j13ms57jqx9es1.jpg");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .hero-text {
+            font-size: 28px;
+            font-style: italic;
+            background: rgb(106, 202, 241);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            max-width: 80%;
+            margin-bottom: 20px;
+        }
+        .greeting-container {
+            margin-top: 20px;
+        }
+        .greeting-container textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .greeting-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #1b6dc3;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .greeting-container button:hover {
+            background-color: #003673;
+            transform: scale(1.05);
+        }
+        .greeting-container button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a class="active" href="/home">Главная страница</a>
+    <a href="/bio">Страница о Диме</a>
+    <a href="/nastya">Страница Насти</a>
+    <a href="/mom">Страница Мамы</a>
+    <a  href="/anya">Страница Ани</a>
+    <a href="/cats">Страница котиков</a>
+    <a href="/foto">Галерея</a>
+
+    <!--    <a href="/happy">Жмякни</a>-->
+
+</div>
+
+<div class="hero-image">
+    <div class="hero-text">
+        С Днем Рождения, дорогой Дима! <br>
+        Этот сайт сделан в твою честь! <br>
+        Мы все тебя очень любим и каждая из нас написала для тебя кое-что приятное. <br>Загляни в соответстующие странички в шапке сайта:)
+    </div>
+
+    <!--форма для генерации поздравления -->
+    <div class="greeting-container">
+        <button onclick="generateGreeting()">Получить поздравление</button>
+        <textarea id="greetingOutput" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    function generateGreeting() {
+        fetch('http://localhost:8082/greetings')
+            .then(response => response.text())
+            .then(greeting => {
+                document.getElementById('greetingOutput').value = greeting;
+                shootConfetti();  //запуск конфетти при успешном получении поздравления
+            })
+            .catch(error => {
+                console.error('Ошибка при получении поздравления:', error);
+                alert('Не удалось получить поздравление. Попробуйте еще раз.');
+            });
+    }
+
+    function shootConfetti() {
+        //основной вызов конфетти
+        confetti({
+            particleCount: 700,
+            angle: 50,
+            spread: 300,
+            origin: { x: 0, y: 0 }
+        });
+
+        //вызов конфетти для другой части экрана
+        confetti({
+            particleCount: 700,
+            angle: 100,
+            spread: 300,
+            origin: { x: 1, y: 0 }
+        });
+
+        confetti({
+            particleCount: 700,
+            angle: 150,
+            spread: 300,
+            origin: { x: 1, y: 1 }
+        });
+
+        confetti({
+            particleCount: 700,
+            angle: 200,
+            spread: 300,
+            origin: { x: 0, y: 1 }
+        });
+    }
+
+    // window.addEventListener('load', function() {
+    //     setTimeout(shootConfetti, 150);
+    // });
+</script>
+
+</body>
+</html>

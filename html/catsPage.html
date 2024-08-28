@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница котиков</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle, #0984b6, #3cabdf);
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow-x: hidden;
+        }
+        .top-bar {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        .top-bar.scrolled {
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .top-bar a {
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+        }
+        .top-bar a:hover {
+            background-color: #51c8f8;
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .top-bar a.active {
+            background-color: #1e6e8e;
+            color: #fff;
+        }
+        .content-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            width: 90%;
+            margin: 100px auto 0;
+        }
+        .container1, .message-container, .additional-container {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+            margin-bottom: 40px;
+            width: 100%;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        .container1:hover, .message-container:hover, .additional-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+        .container1 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container1::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5));
+            transform: rotate(-10deg);
+            z-index: 1;
+        }
+        .container1 > * {
+            position: relative;
+            z-index: 2;
+        }
+        .container1 h1 {
+            color: #1e6e8e;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .message-container h2 {
+            color: #1e6e8e;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .master-text {
+            flex: 2;
+            margin-right: 20px;
+        }
+        .master-photo img {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .master-photo img:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        .contact-info p, .legal-info p {
+            margin: 5px 0;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 25px;
+        }
+        .contact-info p::before{
+            content: "✔";
+            position: absolute;
+            left: 0;
+            color: #4cafa7;
+            font-size: 20px;
+            top: 0;
+            transform: translateY(-1px);
+        }
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        .photo-gallery img {
+            width: 100%;
+            height: 350px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            object-fit: cover;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .photo-gallery img:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        .additional-container {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .additional-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .additional-container.expanded .additional-content {
+            max-height: 500px;
+        }
+
+        .toggle-button {
+            background-color: #1e6e8e;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-button:hover {
+            background-color: #51c8f8;
+        }
+
+        @media (max-width: 768px) {
+            .top-bar a {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            .container1, .message-container, .additional-container {
+                padding: 15px;
+            }
+        }
+        @media (max-width: 480px) {
+            .top-bar a {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .container1 {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .master-text {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar" id="topBar">
+    <a href="/home">Главная страница</a>
+    <a href="/bio">Страница о Диме</a>
+    <a href="/nastya">Страница Насти</a>
+    <a href="/mom">Страница Мамы</a>
+    <a  href="/anya">Страница Ани</a>
+    <a class="active" href="/cats">Страница котиков</a>
+    <a href="/foto">Галерея</a>
+
+    <!--    <a href="/happy">Жмякни</a>-->
+
+
+</div>
+
+<!--Люциус-->
+<div class="content-container">
+    <div class="container1">
+        <div class="master-text">
+            <h1>Котик именниника</h1>
+            <p><strong>Люциус</strong></p>
+            <p>1,5 года</p>
+            <div class="contact-info">
+                <p><strong>Место рождения:</strong> город Тюмень</p>
+                <p><strong>Характер:</strong> дерзкий</p>
+                <p><strong>Окрас:</strong> коричневый, пятнистый</p>
+                <p><b>Установлен имплантат удачи за 4000 крышек.*</b></p>
+            </div>
+<br>
+            <div class="legal-info">
+
+                <p><small><i>*Fallout: New Vegas</i></small></p>
+            </div>
+        </div>
+        <div class="master-photo">
+            <img src="static-fiels/img/Lucius.jpg" alt="Фотография Люциуса">
+        </div>
+    </div>
+
+<div class="message-container">
+    <div class="master-text">
+        <h2>С Днем Рождения!</h2>
+        <p>Поздравляю с Днем Рождения, хозяин!</p>
+        <p> Дорогой хозяин, желаю тебе хорошего настроения и больше свободного времени, чтобы мы могли чаще играть! И побольше циферок на счету, чтобы я продолжал есть шикарные вкусности и у меня были лучшие игрушки, мяу.</p>
+        <p>Мне нравится жить с тобой и Настей, я попал в уютный дом, где обо мне хорошо заботятся и уже любят меня.
+            Я тоже вас люблю. </p>
+    </div>
+
+
+<div class="additional-container">
+    <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+    <div class="additional-content">
+        <h3>Как я использовал свой имплантат удачи</h3>
+        <p>Одним весенним днем мне очень не повезло оказаться на улице. Было холодно, очень много воды везде, брр... Не люблю воду. <br>
+        Ну так вот, я понял, выбора у меня особо нет, и я достал всю свою заначку крышек, которые достались мне в наследство от богатого деда (он был главой большого кошачьего семейства бенгалов). <br>
+        Было страшно, но я рискнул, купил имплантат удачи и стал ждать. <br>
+        Я шел грязный и голодный вдоль трассы уже потеряв надежду, как вдруг люди из проезжающей мимо машины обратили на меня внимание. <br>
+            Я уже тогда понял, что моя покупка оправдала себя! <br> </p>
+        <p> Дальше меня ждало несколько необходимых процедур, чтобы наконец встретить Диму, но я был терпелив. <br>
+        Когда я впервые переступил порог своего нового дома, я почувствовал что впереди меня ждет лучшая жизнь, я сорвал джекпот!!!
+        Первое время мне было плохо, но я адаптировался и теперь счастлив в доме моих новых хозяев Димы и Насти.</p>
+
+    </div>
+
+
+</div>
+
+<div class="photo-gallery">
+    <img src="static-fiels/img/lucius1.jpg" alt="Фотография люцика">
+    <img src="static-fiels/img/lucius2.jpg" alt="Фотография люцика">
+</div>
+</div>
+
+</div>
+
+<!--Степа-->
+
+<div class="content-container">
+    <div class="container1">
+        <div class="master-text">
+            <h1>Первый котик именниника</h1>
+            <p><strong>Стёпа</strong></p>
+            <p>12 лет</p>
+            <div class="contact-info">
+                <p><strong>Место рождения:</strong> город Тюмень</p>
+                <p><strong>Характер:</strong> добрый</p>
+                <p><strong>Окрас:</strong> серый с темными полосочками</p>
+
+            </div>
+            <br>
+            <div class="legal-info">
+                Познакомился с Димой в 2004 году
+
+
+            </div>
+        </div>
+        <div class="master-photo">
+            <img src="static-fiels/img/stepik.jpg" alt="Фотография Степы">
+        </div>
+    </div>
+
+    <div class="message-container">
+        <div class="master-text">
+            <h2>С Днем Рождения!</h2>
+            <p>Привет, мой лучший друг! </p>
+            <p> У тебя произошло так много нового! Я несказанно рад за тебя, твои достижения действительно впечатляют! <br>
+            Хотя, не сказать, что я удивлен, если честно... Я знал, что ты многого добьешься. <br>С самого детства ты был талантливым и смышленным ребенком, твои идеи игр и развлечений для нас с тобой и твоей сестры Ани, не переставали меня удивлять и радовать, мне было очень интересно с тобой жить. Ты мой любимый и главный хозяин.
+            <p> Сегодня твой день рождения, и я хочу тебе пожелать, не смотря на то, что ты уже такой большой человек, не забывать холеть и лелеять того чудесного ребенка, который живет внутри тебя.</p>
+
+        </div>
+
+
+        <div class="additional-container">
+            <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+            <div class="additional-content">
+                <h3>Тренировки</h3>
+                <p>Хозяин Дима не любил скучать, вместо этого, он всегда придумывал чем бы нам заняться. <br>
+                Одним из развлечений стали регулярные тренировки, Дима помогал мне достать до дверного косяка и я подтягивался. Со временем, я раскачал себе мощную спину. <br>Кстати, простите, что иногда воровал колбасу со стола, мне это нужно было для роста мышц.</p>
+
+            </div>
+
+
+        </div>
+
+        <div class="photo-gallery">
+            <img src="static-fiels/img/stepa.jpg" alt="Фотография степика">
+            <img src="static-fiels/img/stepa2.jpg" alt="Фотография степика">
+        </div>
+    </div>
+</div>
+
+    <!--Кокоша-->
+
+    <div class="content-container">
+        <div class="container1">
+            <div class="master-text">
+                <h1>Котик именниника</h1>
+                <p><strong>Кокоша</strong></p>
+                <p>8 лет</p>
+                <div class="contact-info">
+                    <p><strong>Место рождения:</strong> город Тюмень</p>
+                    <p><strong>Характер:</strong> спокойный</p>
+                    <p><strong>Окрас:</strong> черный в белом фраке и с белыми носочками</p>
+                </div>
+                <br>
+                <div class="legal-info">
+                    Познакомился с Димой в 2016 году
+                </div>
+            </div>
+            <div class="master-photo">
+                <img src="static-fiels/img/koko.jpg" alt="Фотография Кокоши">
+            </div>
+        </div>
+        <div class="message-container">
+            <div class="master-text">
+                <h2>С Днем Рождения!</h2>
+                <p>Прими мои поздравления! </p>
+                <p> Дорогой Дима, я рад поздравить тебя с Днем Рождения! Желаю тебе тепла, много вкусной еды, любви и нежности <br>
+                    Пусть каждый день будет таким же радостным и уютным, как наши вечера вместе.</p>
+            </div>
+            <div class="additional-container">
+                <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+                <div class="additional-content">
+                    <h3>Мое имя</h3>
+                    <p>С первого дня моего появления в доме, хозяева решили сменить мне имя, имя Зулджин их не устроило(согласен, фигня какая-то) <br>
+                    Долгое время никакое имя ко мне не прилипало, все не то... Я даже подумал, что останусь просто котом по имени Котик <br>
+                    Но к моей радости, хозяин Дима смог придумать мне оригинальное имя, не похожее ни на чье другое! Мне оно так нравится! <br>
+                    хозяин Дима часто гладил меня по моей гладкой шерстке, приговаривая "какой хоршенький котик". Эта фраза звучала так часто, что мое имя родилось прямо от нее. <br>Так я стал котом Коко. </p>
+                </div>
+            </div>
+            <div class="additional-container">
+                <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+                <div class="additional-content">
+                    <h3>Уютные вечера</h3>
+                    <p>Так сложилось, что я мерзляк, потому что у меня почти нет подшерстка. Но в холодные вечера я нашел спасенье в диминых ногах. Когда хозяин Дима по долгу сидел за компьтером, я любил приходить к нему на теплые колени и сидеть на них часами. <br>
+                    Кстати, я даже немного выучил python. Жаль, у меня лапки.</p>
+                </div>
+            </div>
+            <div class="photo-gallery">
+                <img src="static-fiels/img/smartKoko.jpg" alt="Фотография кокоши">
+                <img src="static-fiels/img/koko1.jpg" alt="Фотография кокоши">
+            </div>
+        </div>
+    </div>
+
+<!--Рыжий-->
+
+<div class="content-container">
+    <div class="container1">
+        <div class="master-text">
+            <h1>Котик именниника</h1>
+            <p><strong>Рыжий</strong></p>
+            <p>5 лет</p>
+            <div class="contact-info">
+                <p><strong>Место рождения:</strong> город Тюмень</p>
+                <p><strong>Характер:</strong> непоседа</p>
+                <p><strong>Окрас:</strong> рыже-серый</p>
+            </div>
+            <br>
+            <div class="legal-info">
+                Познакомился с Димой в 2019 году
+            </div>
+        </div>
+        <div class="master-photo">
+            <img src="static-fiels/img/orange.jpg" alt="Фотография рыжего">
+        </div>
+    </div>
+    <div class="message-container">
+        <div class="master-text">
+            <h2>С Днем Рождения!</h2>
+            <p>Поздравляю тебяяя </p>
+            <p>Желаю тебе море радости, горы смеха и кучу приятных сюрпризов! <br> Пусть каждый день будет полон счастливых моментов, так же как моя жизнь полна шалостей и забавных происшествий. <br> Не забывай радовать себя, а я обещаю быть особенно милым когда ты приходишь в гости(ну, по крайней мере, постараюсь) и не делать лужи при тебе. </p>
+        </div>
+        <div class="additional-container">
+            <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+            <div class="additional-content">
+                <h3>История Рыжего</h3>
+                <p>Когда я был маленьким и только попал к вам в дом, мама решила уехать в Аркаим, а Аня в это время вообще съехала на месяц из дома! <br>
+                    Мы остались с Димой один на один примерно на неделю, я приносил ему хлопоты, которым он был совсем не рад, но тем не менее, несмотря на отличную возможность, Дима не избавился от меня. <br>
+                    Теперь я уже пять лет живу в этом доме. Спасибо, Дима)
+                </p>
+
+            </div>
+        </div>
+        <div class="photo-gallery">
+            <img src="static-fiels/img/orange1.jpg" alt="Фотография рыжего">
+            <img src="static-fiels/img/orange2.jpg" alt="Фотография рыжего">
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('scroll', function() {
+        const topBar = document.getElementById('topBar');
+        if (window.scrollY > 50) {
+            topBar.classList.add('scrolled');
+        } else {
+            topBar.classList.remove('scrolled');
+        }
+    });
+
+    function toggleVisibility(button) {
+        const container = button.closest('.additional-container');
+        container.classList.toggle('expanded');
+        button.textContent = container.classList.contains('expanded') ? 'Скрыть' : 'Прочитать историю';
+    }
+</script>
+
+</body>
+</html>

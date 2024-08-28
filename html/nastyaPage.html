@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница Насти</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle, #0984b6, #3cabdf);
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow-x: hidden;
+        }
+        .top-bar {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        .top-bar.scrolled {
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .top-bar a {
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+        }
+        .top-bar a:hover {
+            background-color: #51c8f8;
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .top-bar a.active {
+            background-color: #1e6e8e;
+            color: #fff;
+        }
+        .content-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            width: 90%;
+            margin: 100px auto 0;
+        }
+        .container1, .message-container, .additional-container {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+            margin-bottom: 40px;
+            width: 100%;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        .container1:hover, .message-container:hover, .additional-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+        .container1 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container1::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5));
+            transform: rotate(-10deg);
+            z-index: 1;
+        }
+        .container1 > * {
+            position: relative;
+            z-index: 2;
+        }
+        .container1 h1 {
+            color: #1e6e8e;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .message-container h2 {
+            color: #1e6e8e;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .master-text {
+            flex: 2;
+            margin-right: 20px;
+        }
+        .master-photo img {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .master-photo img:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        .contact-info p, .legal-info p {
+            margin: 5px 0;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 25px;
+        }
+        .contact-info p::before, .legal-info p::before {
+            content: "✔";
+            position: absolute;
+            left: 0;
+            color: #4cafa7;
+            font-size: 20px;
+            top: 0;
+            transform: translateY(-1px);
+        }
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .photo-gallery img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .photo-gallery img:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+
+        }
+        .additional-container {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .additional-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .additional-container.expanded .additional-content {
+            max-height: 500px;
+        }
+
+        .toggle-button {
+            background-color: #1e6e8e;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-button:hover {
+            background-color: #51c8f8;
+        }
+
+        @media (max-width: 768px) {
+            .top-bar a {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            .container1, .message-container, .additional-container {
+                padding: 15px;
+            }
+        }
+        @media (max-width: 480px) {
+            .top-bar a {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .container1 {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .master-text {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигационное меню, "шапка" сайта -->
+<div class="top-bar">
+    <a href="/home">Главная страница</a>
+    <a href="/bio">Страница о Диме</a>
+    <a class="active"  href="/nastya">Страница Насти</a>
+    <a href="/mom">Страница Мамы</a>
+    <a href="/anya">Страница Ани</a>
+    <a href="/cats">Страница котиков</a>
+    <a href="/foto">Галерея</a>
+
+    <!--    <a href="/happy">Жмякни</a>-->
+
+</div>
+
+
+<div class="content-container">
+<div class="container1">
+    <div class="master-text">
+        <h1>Невеста именинника</h1>
+        <p><strong>Дмитриева Анастасия Леонидовна</strong></p>
+        <p>26 лет</p>
+        <div class="contact-info">
+            <p><strong>Место рождения:</strong> город Тюмень</p>
+            <p><strong>Дата рождения:</strong> 08.04.1998</p>
+            <p><strong>Квалификация:</strong>  врач-лечебник (по зову сердца)</p>
+        </div>
+        <div class="legal-info">
+            <p>Почти бакалавр по направлению подготовки «Информатика и вычислительная техника» (по зову разума)</p>
+        </div>
+    </div>
+
+    <div class="master-photo">
+        <img src="static-fiels/img/Nastya1.jpg" alt="Фотография Насти">
+    </div>
+</div>
+<div class="message-container">
+    <div class="master-text">
+        <h2>С Днем Рождения!</h2>
+        <p>Дорогой мой, любимый, с днём рождения! </p>
+        <p>С каждым мгновением, проведённым вместе, я всё больше осознаю, насколько ты важен для меня. Мы прошли через многое — и радости, и горести, но именно в этих испытаниях я поняла, какой ты сильный и надёжный человек и как мне повезло встретить тебя. Ты стал для меня опорой, источником счастья, вдохновения, примером для подражания,  и я благодарна судьбе за то, что ты рядом. </p>
+        <p>В этот особенный день хочу пожелать тебе исполнения всех твоих желаний и мечтаний. Пусть каждый новый день приносит радость, вдохновение и множество поводов для улыбок. Желаю здоровья, удачи и любви, которая будет согревать твое сердце. </p>
+        <p>С тобой я чувствую себя по-настоящему счастливой, и надеюсь, что впереди нас ждут только светлые моменты и новые свершения. Мы сможем достичь любых высот, благодаря нашей поддержке друг друга и веры в наши мечты. Я уверена, что вместе мы справимся с любыми вызовами рука об руку.</p>
+        <p></p>
+        <p>С любовью, Настя.</p>
+    </div>
+</div>
+
+<div class="additional-container">
+    <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+    <div class="additional-content">
+        <h3>История знакомства и пицца с креветками </h3>
+        <p>Первая наша встреча была в додо пицце, ты выглядел таким взрослым и солидным, удивительно как ты не сбежал при первом взгляде на меня с короткой стрижкой ) Ты рассказывал о работе и об умных вещах, рисовал что-то на салфетке , а я ничего не понимала и удивлялась как ты понимаешь такие сложные вещи ) и до сих пор поражаюсь, когда ты рассказываешь что-то сложное ( и как только ты это все понимаешь ) </p>
+        <p>Тогда я заказала пиццу с креветками и кисло-сладким соусом, жаль таких больше не делают, это была пицца нашего знакомства ) правда то, что она тебе не понравилась, ты сказал только спустя года... И после этой встречи мы с тобой искали каждую свободную минуту вечерами, чтобы увидеться, и я очень рада, что тогда после работы и уставший ты все же пошел ко мне поесть невкусную пиццу </p>
+    </div>
+</div>
+
+<div class="additional-container">
+    <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+    <div class="additional-content">
+        <h3>Я очень ценю твою заботу </h3>
+      <p>  Тут есть много чего вспомнить, как мы ходили гулять в парк зимой и ты набирал мне бутылку с горячей водой чтобы я могла ей греть руки если будет холодно, как ты придумывал всякие грелки и заботливо брал что-нибудь теплое, когда встречал меня с остановки домой в очень холодные деньки, и если мне было очень трудно после учебы добираться, ты тоже меня встречал и помогал донести вещи до дома и приносил что-нибудь вкусное для настроения, в такие моменты я понимала, что ты меня не бросишь в трудностях, как ты после моей операции на глазах приезжал ко мне каждый день вечерами и что-нибудь читал или рассказывал, а я с нетерпением ждала тебя, я уже не могу прожить и дня без тебя)</p>
+    </div>
+</div>
+
+
+<div class="additional-container">
+    <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+    <div class="additional-content">
+        <h3>Как мы проходили собесы вместе  </h3>
+        <p> Ты научил меня, что трудности можно преодолевать по разному и не обязательно рвать одно место) Когда я начала устраиваться на работу и проходила очень душные собеседования, ты придумал подключить дополнительные наушники, чтобы ты тоже слышал вопросы и дополнительную клавиатуру, чтоб быстро помочь написать ответ ) выглядело это максимально коряво и по-крысиному, но оказалось очень эффективно, хотя бы потому, что я меньше переживала и знала, что могу на тебя положиться ) спасибо тебе за офферы, в целом это твоя заслуга )</p>
+    </div>
+</div>
+
+    <div class="photo-gallery">
+        <img src="static-fiels/img/zimaDimaNastya1.jpg" alt="Фотография Насти и Димы">
+        <img src="static-fiels/img/medDimaNastya1.jpg" alt="Фотография Насти и Димы">
+    </div>
+
+</div>
+
+<script>
+    window.addEventListener('scroll', function() {
+        const topBar = document.getElementById('topBar');
+        if (window.scrollY > 50) {
+            topBar.classList.add('scrolled');
+        } else {
+            topBar.classList.remove('scrolled');
+        }
+    });
+
+    function toggleVisibility(button) {
+        const container = button.closest('.additional-container');
+        container.classList.toggle('expanded');
+        button.textContent = container.classList.contains('expanded') ? 'Скрыть' : 'Показать больше';
+    }
+</script>
+</body>
+</html>

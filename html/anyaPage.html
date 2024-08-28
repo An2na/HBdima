@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница Ани</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle, #0984b6, #3cabdf);
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow-x: hidden;
+        }
+        .top-bar {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        .top-bar.scrolled {
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .top-bar a {
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+        }
+        .top-bar a:hover {
+            background-color: #51c8f8;
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .top-bar a.active {
+            background-color: #1e6e8e;
+            color: #fff;
+        }
+        .content-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            width: 90%;
+            margin: 100px auto 0; /*отступ сверху для меню */
+        }
+        .container1, .message-container, .additional-container {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+            margin-bottom: 40px; /*единый отступ между контейнерами */
+            width: 100%;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        .container1:hover, .message-container:hover, .additional-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+        .container1 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container1::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5));
+            transform: rotate(-10deg);
+            z-index: 1;
+        }
+        .container1 > * {
+            position: relative;
+            z-index: 2;
+        }
+        .container1 h1 {
+            color: #1e6e8e;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .message-container h2 {
+            color: #1e6e8e;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .master-text {
+            flex: 2;
+            margin-right: 20px;
+        }
+        .master-photo img {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .master-photo img:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        .contact-info p, .legal-info p {
+            margin: 5px 0;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 25px;
+        }
+        .contact-info p::before, .legal-info p::before {
+            content: "✔";
+            position: absolute;
+            left: 0;
+            color: #4cafa7;
+            font-size: 20px;
+            top: 0;
+            transform: translateY(-1px);
+        }
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        .photo-gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            object-fit: cover;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .photo-gallery img:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        /*стили для дополнительного контейнера */
+        .additional-container {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .additional-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .additional-container.expanded .additional-content {
+            max-height: 500px;
+        }
+        .toggle-button {
+            background-color: #1e6e8e;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .toggle-button:hover {
+            background-color: #51c8f8;
+        }
+
+        @media (max-width: 768px) {
+            .top-bar a {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            .container1, .message-container, .additional-container {
+                padding: 15px;
+            }
+        }
+        @media (max-width: 480px) {
+            .top-bar a {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .container1 {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .master-text {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar" id="topBar">
+    <a href="/home">Главная страница</a>
+    <a href="/bio">Страница о Диме</a>
+    <a href="/nastya">Страница Насти</a>
+    <a href="/mom">Страница Мамы</a>
+    <a class="active" href="/anya">Страница Ани</a>
+    <a href="/cats">Страница котиков</a>
+    <a href="/foto">Галерея</a>
+
+<!--    <a href="/happy">Жмякни</a>-->
+
+</div>
+
+<div class="content-container">
+    <div class="container1">
+        <div class="master-text">
+            <h1>Младшая сестра именинника</h1>
+            <p><strong>Щедрина Анна Сергеевна</strong></p>
+            <p>23 года</p>
+            <div class="contact-info">
+                <p><strong>Место рождения:</strong> город Тюмень</p>
+                <p><strong>Дата рождения:</strong> 28.04.2001</p>
+                <p><strong>Квалификация:</strong> разработчик веб и мультимедийных приложений</p>
+            </div>
+            <div class="legal-info">
+                <p>Почти бакалавр по направлению подготовки юриспруденция.</p>
+            </div>
+        </div>
+        <div class="master-photo">
+            <img src="static-fiels/img/5MNBjap0dtc.jpg" alt="Фотография Ани">
+        </div>
+    </div>
+
+    <div class="message-container">
+        <div class="master-text">
+            <h2>С Днем Рождения!</h2>
+            <p>Поздравляю с Днем Рождения, мой любимый брат!</p>
+            <p>Желаю тебе счастья, гармонии, здоровья, любви! Все твои желания осуществляются, потому что ты умный, целеустремленный, трудолюбивый, внимательный, терпеливый. Результат твоих стараний всегда успех, и ты заслуживаешь все, о чем желаешь. Я тобой восхищаюсь и беру с тебя пример.</p>
+            <p>В детстве начинается формирование личности человека, именно тогда закладываются ценности, будущие черты характера, мировоззрение, убеждения. Мы оказали друг на друга огромное влияние, и то, какими людьми мы стали, это в том числе результат времени, проведенного вместе.</p>
+            <p>Спасибо за все мои теплые воспоминания о детстве, ведь они связаны с тобой. Благодаря тебе и твоей богатой фантазии нам было некогда скучать! Множество игр, придуманных тобой в детстве, греют душу по сей день. Вот несколько из моих любимых: городок с бойцовским клубом; рабский кот; лошадка; магазин со спящим охранником; тюрьма; прятки; угадай кто ты...</p>
+            <p>Ты очень добрый и заботливый, мне повезло, что именно ты мой Старший брат! Спасибо за то, что всю мою жизнь заботишься обо мне.</p>
+            <p>Я тебя очень люблю и ценю, Димкоу! С Днем рождения!</p>
+        </div>
+    </div>
+
+    <div class="additional-container">
+        <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+        <div class="additional-content">
+            <h3>2009 год, детский летний лагерь "Витязь"</h3>
+            <p>Мы были в разных отрядах и жили на разных этажах, но все равно часто проводили время вместе, в один из вечеров Дима пришел ко мне на этаж, предложил поиграть в лошадку, как дома. Он посадил меня себе на спину и покатал туда-обратно по длинному коридору, другие дети выглядывали из комнат и смотрели с завистью на меня, они тоже хотели чтобы их кто-нибудь покатал. Я чувствовала себя круче всех!</p>
+        </div>
+    </div>
+
+    <div class="additional-container">
+        <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+        <div class="additional-content">
+            <h3>2011 год, Диме 14 лет</h3>
+            <p>Я третьеклассница. В начальной школе у нас были разнообразные виды деятельности, в том числе ежедневное чтение художественной литературы, мы должны были заполнять "дневники чтения", в них вносились записи о названии, авторе, количестве прочитанных страниц и краткий пересказ. Все это заверялось подписью родителя. Практически всегда мне было лень читать, и иногда я сочиняла какой-то рассказ, якобы я это прочитала, а Дима ставил свою подпись, на правах гражданина РФ с паспортом. Вряд-ли мама об этом догадывалась. У нас в целом было полно общих секретиков от мамы.</p>
+            <p>P.s. "сделаем так, что мама не узнает?"</p>
+        </div>
+    </div>
+    <div class="additional-container">
+        <button class="toggle-button" onclick="toggleVisibility(this)">Прочитать историю</button>
+        <div class="additional-content">
+            <h3>21.05.2023 истории нет, просто рофл</h3>
+            <img src="static-fiels/img/salo.jpg">
+        </div>
+    </div>
+</div>
+
+<div class="photo-gallery">
+    <img src="static-fiels/img/photo_2024-08-23_19-58-48.jpg" alt="Фотография Ани и Димы">
+    <img src="static-fiels/img/photo_2024-08-23_19-58-40.jpg" alt="Фотография Ани и Димы">
+</div>
+
+
+<script>
+    window.addEventListener('scroll', function() {
+        const topBar = document.getElementById('topBar');
+        if (window.scrollY > 50) {
+            topBar.classList.add('scrolled');
+        } else {
+            topBar.classList.remove('scrolled');
+        }
+    });
+
+    function toggleVisibility(button) {
+        const container = button.closest('.additional-container');
+        container.classList.toggle('expanded');
+        button.textContent = container.classList.contains('expanded') ? 'Скрыть' : 'Показать больше';
+    }
+</script>
+
+</body>
+</html>
